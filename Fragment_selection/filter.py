@@ -4,7 +4,7 @@ import rdkit.Chem as Chem
 from rdkit.Chem.Lipinski import NumRotatableBonds
 from rdkit.Chem.rdMolDescriptors import *
 from rdkit.Chem import Crippen
-from rdkit .Chem import SaltRemover
+from rdkit.Chem import SaltRemover
 
 
 class Filter:
@@ -15,9 +15,8 @@ class Filter:
         self.mol = Chem.MolFromSmiles(input_smiles)
         if "." in input_smiles:
             remover = SaltRemover.SaltRemover()
-            res = remover.StripMol(mol)
+            res = remover.StripMol(self.mol)
             self.mol = res
-
 
     def LogP_filter(self):
         mol = self.mol
@@ -35,16 +34,16 @@ class Filter:
         S_count = 0
 
         for atom in self.mol.GetAtoms():
-            symb = atom.GetSymbol()
-            if symb == "F":
+            symbol = atom.GetSymbol()
+            if symbol == "F":
                 F_count += 1
-            elif symb == "Br":
+            elif symbol == "Br":
                 Br_count += 1
-            elif symb == "Cl":
+            elif symbol == "Cl":
                 Cl_count += 1
-            elif symb == "I":
+            elif symbol == "I":
                 I_count += 1
-            elif symb == "S":
+            elif symbol == "S":
                 S_count += 1
             else:
                 pass
@@ -52,8 +51,7 @@ class Filter:
         return all([F_count <= 3, Br_count < 3, Cl_count <= 3, I_count <= 1, S_count <= 1])
 
     def bad_substructure_filter(self):
-        ''' molecules contains bad substurcture should be exclued from fragment list
-        '''
+        " molecules contains bad substurcture should be exclued from fragment list "
         bad_sub_list = ['[#7R][O]',
                         'C1C(C1)N(*)*',
                         'c:1:c(:c:c:c:c:1)N([CH3])[CH1]=[CH1]*',
@@ -147,12 +145,12 @@ class Filter:
         num_rotatable_bonds = NumRotatableBonds(mol)
         tpsa = CalcTPSA(mol, includeSandP=True)
 
-        return return all([exact_mwt < 300, mol_log_p <= 3, num_hydrogen_bond_donors <= 3, num_hydrogen_bond_acceptors <= 3, num_rotatable_bonds <= 3, tpsa <= 60])
+        return all([exact_mwt < 300, mol_log_p <= 3, num_hydrogen_bond_donors <= 3, num_hydrogen_bond_acceptors <= 3,
+                    num_rotatable_bonds <= 3, tpsa <= 60])
 
-
-    def organic_filter():
+    def organic_filter(self):
         mol = self.mol
-        element_list = ['C','H','O','N','P','S','F','Cl','Br','I']
+        element_list = ['C', 'H', 'O', 'N', 'P', 'S', 'F', 'Cl', 'Br', 'I']
         for atom in mol.GetAtoms():
             symbol = atom.GetSymbol()
             if symbol in element_list:
@@ -161,7 +159,7 @@ class Filter:
                 return False
         return True
 
-    def halogen_filter():
+    def halogen_filter(self):
         mol = self.mol
         F_count = mol.GetSubstructMatches(Chem.MolFromSmarts('[F]'))
         I_count = mol.GetSubstructMatches(Chem.MolFromSmarts('[I]'))
