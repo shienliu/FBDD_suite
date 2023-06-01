@@ -99,10 +99,12 @@ verbosity = 0
     return 0
 
 
-def main():
-    fetch_pdb("3OG7")
-    remove_water("3OG7.pdb")
-    config_gen("test.txt", "3OG7_clean.pdb")
+def main(pdbid):
+    clean_name = pdbid + "_clean.pdb"
+    config_filename = pdbid + "_config.txt"
+    fetch_pdb(pdbid)
+    remove_water(pdbid + ".pdb")
+    config_gen(config_filename, clean_name)
 
 
-main()
+main("3OG7")
